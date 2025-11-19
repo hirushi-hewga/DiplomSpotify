@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Sixtyfour+Convergence&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+::-webkit-scrollbar {
+  display: none; /* Chrome, Safari та інші браузери на основі Webkit */
+}
+
+body {
+  background-size: cover;
+  background-position: top;
+  background-repeat: no-repeat;
+  transition: background-image 0.5s ease-in-out;
+}
+
+.bg-auth {
+  background-image: url('/assets/background_auth.png');
+}
+
+.music-player {
+
+  background-color: #282c34;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+  margin: 0 auto;
+  text-align: center;
+  color: #888888;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+h1{
+  text-align: center;
+  color: #DB3131;
+}
+.music-player h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+
+.music-player p {
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+.music-player audio {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+}
+.controls button {
+  background-color: #e14545;
+  border: none;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  color: #282c34;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.controls button:hover {
+  background-color: #ff8a8a;
+}
+
+.controls button:disabled {
+  background-color: #555555;
+  cursor: not-allowed;
+}
+
+input[type="range"] {
+  -webkit-appearance: none; /* Вимкнути стандартний стиль для WebKit браузерів */
+  appearance: none; /* Вимкнути стандартний стиль */
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Вимкнути стандартний стиль для WebKit браузерів */
+  appearance: none; /* Вимкнути стандартний стиль */
+  width: 10px; /* Ширина крапки */
+  height: 10px; /* Висота крапки */
+  background: linear-gradient(90deg, #A30028 0%, #FB2645 100%);
+  border-radius: 50%; /* Крапка кругла */
+  cursor: pointer; /* Курсор при наведені */
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 10px; /* Ширина крапки */
+  height: 10px; /* Висота крапки */
+  background: linear-gradient(90deg, #A30028 0%, #FB2645 100%);
+  border-radius: 50%; /* Крапка кругла */
+  cursor: pointer; /* Курсор при наведені */
+}
+
+input[type="range"]::-ms-thumb {
+  width: 10px; /* Ширина крапки */
+  height: 10px; /* Висота крапки */
+  background: linear-gradient(90deg, #A30028 0%, #FB2645 100%);
+  border-radius: 50%; /* Крапка кругла */
+  cursor: pointer; /* Курсор при наведені */
+}
