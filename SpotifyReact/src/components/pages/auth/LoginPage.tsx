@@ -11,52 +11,67 @@ import { jwtParser } from "utils/jwtParser.ts";
 import React from "react";
 
 const LoginPage: React.FC = () => {
+
+    // змінює URL та переходить між сторінками
     const navigate = useNavigate();
+    // об’єкт, що описує поточне місце у маршрутизації.
     const location = useLocation();
+    // функція, яка дозволяє компоненту відправляти екшени в Redux.
     const dispatch = useAppDispatch();
 
+    // стани для збереження значень
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
 
+    // функції для запиту на зміну даних
     const [googleLogin, { isLoading: isLoadingGoogleLogin }] = useGoogleLoginMutation();
     const [emailLogin, { isLoading: isLoadingEmailLogin }] = useLoginMutation();
 
     const login = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        // надсилання даних на сервер
         const res = await emailLogin({ email, password });
 
         if (res && "data" in res && res.data) {
+            // збереження токену користувача
             console.log(res.data.token);
             setUser(res.data.token);
-            
         } else {
-            
+            // помилка
+            console.log()
         }
     };
 
     const authSuccess = async (credentialResponse: CredentialResponse) => {
+        // отримання Google-токену від клієнта і надсилання його на бекенд для авторизації
         const res = await googleLogin({
             credential: credentialResponse.credential || "",
         });
         console.log(res);
 
         if (res && "data" in res && res.data) {
+            // збереження токену користувача
             setUser(res.data.token);
         } else {
-            
+            // помилка
+            console.log()
         }
     };
 
     const setUser = (token: string) => {
+        // збереження токену в localStorage для повторної авторизації користувача
         localStorage.setItem("authToken", token);
 
+        // Оновлення стану Redux, збереження користувача та токену
         dispatch(
             setCredentials({
                 user: jwtParser(token) as User,
                 token: token,
             }),
         );
+
+        // перенаправлення користувача після логіну
         const { from } = location.state || { from: { pathname: "/" } };
         navigate(from);
     };
