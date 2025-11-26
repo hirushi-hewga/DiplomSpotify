@@ -14,10 +14,15 @@ import "react-datepicker/dist/react-datepicker.css";
 import React, { useState } from "react";
 
 const RegisterPage: React.FC = () => {
+    // змінює URL та переходить між сторінками
     const navigate = useNavigate();
+    // функція, яка дозволяє компоненту відправляти екшени в Redux.
     const dispatch = useAppDispatch();
+
+    // функція для запиту на зміну даних
     const [register, { isLoading }] = useRegisterMutation();
 
+    // стани для збереження значень
     const [name, setName] = useState("");
     const [image, setImage] = useState<File | null>(null);
     const [email, setEmail] = useState("");
@@ -26,32 +31,46 @@ const RegisterPage: React.FC = () => {
     const [birthDate, setBirthDate] = useState<Date>(new Date());
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // отримання першого файлу з інпуту (якщо він є)
         const file = e.target.files?.[0];
+
+        // збереження файлу у стан, якщо він є
         if (file) {
             setImage(file);
         }
     };
 
     const handleRegister = async () => {
+        // форматування дати народження у формат "дд/мм/рррр"
         const formattedBirthDate = birthDate.toLocaleDateString('en-GB');
+
+        // запит для реєстрації користувача з необхідними даними
         const res = await register({ name, image, email, username, password, birthDate: formattedBirthDate});
+
         if (res && "data" in res && res.data) {
+            // функція для збереження токену та оновлення користувача
             setUser(res.data.token);
             showToast(`Реєстрація успішна!`, "success");
         } else {
+            // помилка
             showToast(`Помилка реєстраціі. Перевірте ваші дані!`, "error");
         }
     };
 
     const setUser = (token: string) => {
+        // збереження токену у localStorage для збереження сесії
         localStorage.setItem("authToken", token);
 
+        // збереження користувача та токену
         dispatch(
             setCredentials({
+                // отримання даних користувача з токену
                 user: jwtParser(token) as User,
                 token: token,
             }),
         );
+
+        // перенаправлення користувача на головну сторінку
         navigate("/");
     };
 
