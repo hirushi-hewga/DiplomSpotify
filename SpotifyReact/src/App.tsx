@@ -20,6 +20,7 @@ import ArtistsPage from "components/pages/main/ArtistsPage.tsx";
 import ArtistPage from "components/pages/admin/artist/ArtistPage";
 import PlaylistPage from "components/pages/main/PlaylistPage";
 import HomePage from "components/pages/main/home/HomePage";
+import NotFoundPage from "components/pages/notFound/NotFoundPage.tsx";
 
 const App = () => {
   return (
@@ -60,7 +61,8 @@ const App = () => {
           <Route path="resetPassword" element={<ResetPasswordPage />} />
           <Route path="forgotPassword" element={<ForgotPasswordPage/>} />
         </Route>
-    
+
+        <Route path="*" element={ <NotFoundPage /> } />
       </Routes>
     </PlayerProvider>
   );
