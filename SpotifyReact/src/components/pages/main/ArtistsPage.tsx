@@ -6,6 +6,7 @@ import { API_URL } from "utils/envData";
 
 
 const ArtistsPage = () => {
+
   const [filter, setFilter] = useState<IArtistFilter>({
     PageIndex: 0,
     PageSize: 10,
