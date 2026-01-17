@@ -61,6 +61,13 @@ const Header = () => {
               <div
                 className="absolute top-[78px] right-[20px] bg-black rounded-[5px] z-40 w-[120px] py-[2px]"
               >
+                <NavLink to="/admin">
+                  <button
+                    className="w-full py-[1px] text-sm hover:bg-[#3B3B3B] text-white cursor-pointer rounded-[5px] font-roboto text-lg font-semibold"
+                  >
+                    AdminPanel
+                  </button>
+                </NavLink>
                 <button
                   className="w-full py-[1px] text-sm hover:bg-[#3B3B3B] text-white cursor-pointer rounded-[5px] font-roboto text-lg font-semibold"
                   onClick={handleLogout}
