@@ -1,6 +1,6 @@
 import ListHeader from "./ListHeader";
 import ListLine from "./ListLine";
-import { ITrack } from "interfaces/track";
+import { ITrack } from "services/types/track";
 
 interface IListProps {
   tracks: ITrack[]

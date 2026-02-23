@@ -4,9 +4,9 @@ namespace Model.Entities.Identity;
 
 public class User : IdentityUser<long>
 {
-    public string Name { get; set; } = null!;
-    public string Photo { get; set; } = null!;
-    public DateTime DateOfBirth { get; set; }
+    public string? Name { get; set; }
+    public string? Photo { get; set; }
+    public DateTime BirthDate { get; set; }
 
     public virtual ICollection<UserRole> UserRoles { get; set; } = null!;
 

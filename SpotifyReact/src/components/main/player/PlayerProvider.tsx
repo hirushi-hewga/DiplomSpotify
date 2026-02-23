@@ -1,5 +1,5 @@
 import React, { createContext, useState, useRef, ReactNode, useEffect } from 'react';
-import { ITrack } from 'interfaces/track';
+import { ITrack } from 'services/types/track';
 import { API_URL } from 'utils/envData';
 
 interface IPlayerContext {

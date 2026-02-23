@@ -20,7 +20,7 @@ export default defineConfig({
           types: "/src/types",
           utils: "/src/utils",
           motion: "/src/motion",
-          interfaces: "/src/interfaces",
+          interfaces: "/src/types",
           partials: "/src/partials",
       },
   },

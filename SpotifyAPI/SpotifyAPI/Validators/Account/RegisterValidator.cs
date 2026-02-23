@@ -25,8 +25,6 @@ public class RegisterValidator : AbstractValidator<RegisterVm>
                 .WithMessage("There is already a user with this email");
 
         RuleFor(r => r.Name)
-            .NotEmpty()
-                .WithMessage("Name is empty or null")
             .MaximumLength(100)
                 .WithMessage("Name is too long");
 
@@ -39,8 +37,6 @@ public class RegisterValidator : AbstractValidator<RegisterVm>
                 .WithMessage("There is already a user with this username");
 
         RuleFor(r => r.Image)
-            .NotNull()
-                .WithMessage("Image is not selected")
             .MustAsync(imageValidator.IsValidImageAsync)
                 .WithMessage("Image is not valid");
     }

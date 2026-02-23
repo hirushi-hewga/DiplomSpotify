@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { IGenre, IGenreCreate, IGenreUpdate } from "interfaces/genre";
+import { IGenre, IGenreCreate, IGenreUpdate } from "services/types/genre";
 import { createBaseQuery } from "utils/baseQuery.ts";
 
 export const genreApi = createApi({

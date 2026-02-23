@@ -14,8 +14,13 @@ public class AppMapProfile : Profile
 {
     public AppMapProfile()
     {
-        CreateMap<RegisterVm, User>();
         CreateMap<User, UserVm>();
+
+        CreateMap<RegisterVm, User>()
+            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Username))
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+            .ForMember(dest => dest.Photo, opt => opt.Ignore())
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
         CreateMap<Artist, ArtistVm>()
             .ForMember(dest => dest.AlbumsCount, opt => opt.MapFrom(src => src.Albums.Count))

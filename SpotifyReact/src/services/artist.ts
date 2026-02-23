@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { IArtist, IArtistCreate, IArtistFilter, IArtistsResponse, IArtistUpdate } from "interfaces/artist";
+import { IArtist, IArtistCreate, IArtistFilter, IArtistsResponse, IArtistUpdate } from "services/types/artist";
 import { createBaseQuery } from "utils/baseQuery.ts";
 
 export const artistApi = createApi({

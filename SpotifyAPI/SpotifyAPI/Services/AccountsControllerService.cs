@@ -24,7 +24,10 @@ public class AccountsControllerService(
     public async Task<User> SignUpAsync(RegisterVm vm)
     {
         User user = mapper.Map<RegisterVm, User>(vm);
-        user.Photo = await imageService.SaveImageAsync(vm.Image);
+        if (vm.Image != null)
+        {
+            user.Photo = await imageService.SaveImageAsync(vm.Image);
+        }
 
         try
         {

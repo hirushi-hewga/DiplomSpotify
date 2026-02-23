@@ -56,7 +56,7 @@ public class JwtTokenService(
         {
             new Claim("id", user.Id.ToString()),
             new Claim("email", userEmail),
-            new Claim("image", user.Photo),
+            new Claim("birthDate", user.BirthDate.ToString()),
             new Claim("username", user.UserName)
         };
 

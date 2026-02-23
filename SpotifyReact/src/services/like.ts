@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { ITracksResponse, ITrackFilter } from "interfaces/track";
+import { ITracksResponse, ITrackFilter } from "services/types/track";
 import { createBaseQuery } from "utils/baseQuery.ts";
 
 export const likeApi = createApi({
