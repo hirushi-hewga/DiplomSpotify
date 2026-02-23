@@ -3,19 +3,19 @@ import { classNames } from "utils/classNames.ts";
 
 import React from "react";
 
-const buttonVariants = cva("flex items-center justify-center rounded-md gap-1", {
+const buttonVariants = cva("flex items-center font-poppins justify-center rounded-[36px] w-full text-[20px]", {
     variants: {
         variant: {
-            primary: "bg-sky font-semibold font-semibold text-white hover:bg-blue",
-            secondary: "bg-white font-semibold text-sky text-sm hover:opacity-90",
-            rounded: "text-sm bg-transparent text-white hover:bg-lightblue rounded-full",
+            primary: "font-semibold bg-white",
+            secondary: "bg-neutral-50/0 font-semibold text-white border-3 border-white",
+            shadow: "text-white bg-[#262626] shadow-[inset_4px_4px_4px_rgba(0,0,0,.25)]",
+            transparent: "font-normal text-white backdrop-blur-[8.3px] border-[1px] border-white/[80%] bg-white/[10%]",
             underline: "text-xs text-white hover:bg-lightblue underline font-semibold rounded-none",
-            transparent: "bg-transparent text-white hover:bg-lightblue font-bold",
             translight: "bg-transparent text-sky hover:bg-lightsky font-semibold",
             lightborder: "border border-sky text-sky text-sm font-main mt-4 rounded-md  w-full hover:bg-lightsky"
         },
         size: {
-            default: "h-12 px-3 py-2",
+            default: "w-full h-full",
             sm: "h-9 px-3 py-1",
             md: "px-4 py-3",
             lg: "px-4 py-2",

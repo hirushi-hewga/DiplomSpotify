@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArtistCreateSchema, ArtistCreateSchemaType } from "interfaces/zod/artist";
+import { ArtistCreateSchema, ArtistCreateSchemaType } from "services/types/zod/artist";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";

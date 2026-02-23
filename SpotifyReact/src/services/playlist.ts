@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { IPlaylist, IPlaylistCreate, IPlaylistFilter, IPlaylistResponce, IPlaylistUpdate } from "interfaces/playlist";
+import { IPlaylist, IPlaylistCreate, IPlaylistFilter, IPlaylistResponce, IPlaylistUpdate } from "services/types/playlist";
 import { createBaseQuery } from "utils/baseQuery.ts";
 
 export const playlistApi = createApi({

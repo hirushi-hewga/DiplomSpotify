@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { IAlbum, IAlbumFilter, IAlbumsResponse } from "interfaces/album";
+import { IAlbum, IAlbumFilter, IAlbumsResponse } from "services/types/album";
 import { createBaseQuery } from "utils/baseQuery.ts";
 
 export const albumApi = createApi({

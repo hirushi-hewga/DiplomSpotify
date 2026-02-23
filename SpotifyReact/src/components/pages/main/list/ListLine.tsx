@@ -2,7 +2,7 @@ import { Button } from "@headlessui/react";
 import LikeF from "components/main/icon/LikeF";
 import PlayerMore from "components/main/icon/PlayerMore";
 import PlayerPlay from "components/main/icon/PlayerPlay";
-import { ITrack } from "interfaces/track";
+import { ITrack } from "services/types/track";
 import { API_URL } from "utils/envData";
 import { timeFormat } from "utils/timeFormat";
 import { PlayerContext } from "components/main/player/PlayerProvider";

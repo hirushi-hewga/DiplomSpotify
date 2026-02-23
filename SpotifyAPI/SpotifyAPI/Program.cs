@@ -1,37 +1,105 @@
+using System.Text;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Model.Context;
-using Model.Entities.Identity;
-using SpotifyAPI.Mapper;
-using SpotifyAPI.Models.Album;
-using SpotifyAPI.Models.Artist;
-using SpotifyAPI.Models.Follower;
-using SpotifyAPI.Models.Like;
-using SpotifyAPI.Models.Playlist;
-using SpotifyAPI.Models.PlaylistTrack;
-using SpotifyAPI.Models.Track;
-using SpotifyAPI.Services;
-using SpotifyAPI.Seeder;
-using SpotifyAPI.Seeder.Interfaces;
-using SpotifyAPI.Validators.Artist;
-using System.Text;
-using SpotifyAPI.Services.Interfaces;
-using SpotifyAPI.Services.Pagination;
-using SpotifyAPI.SMTP;
-using SpotifyAPI.Configuration;
+using SpotifyAPI.BLL;
+using SpotifyAPI.BLL.DTOs.Account;
+using SpotifyAPI.DAL;
+using SpotifyAPI.DAL.Entities;
+using SpotifyAPI.DataInitializer;
+using SpotifyAPI.BLL.MapperProfiles;
+using SpotifyAPI.BLL.Services;
+using SpotifyAPI.DAL.Repositories.Jwt;
+using SpotifyAPI.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add jwt
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            RequireExpirationTime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+            ValidAudience = builder.Configuration["JwtSettings:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"] ?? "")),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
 // Add services to the container.
+builder.Services.AddServices();
+
+// Add repositories
+builder.Services.AddScoped<IJwtRepository, JwtRepository>();
+
+builder.Services.AddControllers();
+
+// Add fluent validation
+builder.Services.AddValidatorsFromAssemblyContaining<LoginValidator>();
+
+// Add automapper
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<RoleMapperProfile>();
+    cfg.AddProfile<UserMapperProfile>();
+});
+
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+//builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Spotify API",
+        Version = "v1"
+    });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Введи JWT токен у форматі: Bearer {your token}"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+
+// Add database context
 var assemblyName = AssemblyService.GetAssemblyName();
 
-builder.Services.AddDbContext<DataContext>(
+builder.Services.AddDbContext<AppDbContext>(
     options => {
         options.UseNpgsql(
             builder.Configuration.GetConnectionString("Npgsql"),
@@ -44,128 +112,33 @@ builder.Services.AddDbContext<DataContext>(
     }
 );
 
+// Add identity
 builder.Services
-    .AddIdentity<User, Role>(options => {
-        options.Stores.MaxLengthForKeys = 128;
-        options.Password.RequiredLength = 8;
-        options.Password.RequireDigit = false;
+    .AddIdentity<AppUser, AppRole>(options =>
+    {
         options.Password.RequireNonAlphanumeric = false;
-        options.Password.RequireUppercase = false;
-        options.Password.RequireLowercase = false;
+        options.Password.RequiredUniqueChars = 0;
+        options.Password.RequiredLength = 8;
+        options.Password.RequireDigit = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
+        options.User.RequireUniqueEmail = true;
     })
-    .AddEntityFrameworkStores<DataContext>()
+    .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-var singinKey = new SymmetricSecurityKey(
-    Encoding.UTF8.GetBytes(
-        builder.Configuration["Authentication:Jwt:SecretKey"]
-            ?? throw new NullReferenceException("Authentication:Jwt:SecretKey")
-    )
-);
-
-builder.Services
-    .AddAuthentication(options => {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options => {
-        options.SaveToken = true;
-        options.RequireHttpsMetadata = false;
-        options.TokenValidationParameters = new TokenValidationParameters()
-        {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            IssuerSigningKey = singinKey,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ClockSkew = TimeSpan.Zero
-        };
-    });
-
-builder.Services.Configure<KestrelServerOptions>(options =>
+builder.Services.AddCors(options =>
 {
-    options.Limits.MaxRequestBodySize = 1048576000;
-});
-
-builder.Services.AddControllers();
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options => {
-    options.AddSecurityDefinition(
-        "Bearer",
-        new OpenApiSecurityScheme
-        {
-            Description = "Jwt Auth header using the Bearer scheme",
-            Type = SecuritySchemeType.Http,
-            Scheme = "bearer"
-        }
-    );
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement {
-        {
-            new OpenApiSecurityScheme {
-                Reference = new OpenApiReference {
-                    Id = "Bearer",
-                    Type = ReferenceType.SecurityScheme
-                }
-            },
-            new List<string>()
-        }
+    options.AddPolicy("localhost5173", builder =>
+    {
+        builder.WithOrigins("http://localhost:5173")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
 });
 
-builder.Services.AddAutoMapper(typeof(AppMapProfile));
-builder.Services.AddValidatorsFromAssemblyContaining<PlaylistCreateValidator>();
-
-builder.Services.AddScoped<IMigrationService, MigrationService>();
-
-builder.Services.AddScoped<IIdentitySeeder, IdentitySeeder>();
-builder.Services.AddScoped<IDataSeeder, DataSeeder>();
-
-builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-
-builder.Services.AddTransient<IImageService, ImageService>();
-builder.Services.AddTransient<IImageValidator, ImageValidator>();
-
-builder.Services.AddTransient<IIdentityService, IdentityService>();
-builder.Services.AddScoped<IScopedIdentityService, ScopedIdentityService>();
-
-builder.Services.AddTransient<IAudioService, AudioService>();
-builder.Services.AddTransient<IAudioValidator, AudioValidator>();
-
-builder.Services.AddTransient<IExistingEntityCheckerService, ExistingEntityCheckerService>();
-
-builder.Services.AddTransient<IAccountsControllerService, AccountsControllerService>();
-
-builder.Services.AddTransient<IArtistsControllerService, ArtistsControllerService>();
-builder.Services.AddTransient<IPaginationService<ArtistVm, ArtistFilterVm>, ArtistPaginationService>();
-
-builder.Services.AddTransient<IAlbumsCotrollerService, AlbumsControllerService>();
-builder.Services.AddTransient<IPaginationService<AlbumVm, AlbumFilterVm>, AlbumPaginationService>();
-
-builder.Services.AddTransient<ITrackControllerService, TracksControllerService>();
-builder.Services.AddTransient<IPaginationService<TrackVm, TrackFilterVm>, TrackPaginationService>();
-
-builder.Services.AddTransient<IPlaylistControllerService, PlaylistsControllerService>();
-builder.Services.AddTransient<IPaginationService<PlaylistVm, PlaylistFilterVm>, PlaylistPaginationService>();
-
-builder.Services.AddTransient<IPlaylistTrackControllerService, PlaylistTrackControllerService>();
-builder.Services.AddTransient<IPaginationService<TrackVm, PlaylistTrackFilterVm>, PlaylistTracksPaginationService>();
-
-builder.Services.AddTransient<IFollowerControllerService, FollowerControllerService>();
-builder.Services.AddTransient<IPaginationService<ArtistVm, FollowerFilterVm>, FollowerPaginationService>();
-
-builder.Services.AddTransient<ILikeControllerService, LikeControllerService>();
-builder.Services.AddTransient<IPaginationService<TrackVm, LikeFilterVm>, LikePaginationService>();
-
-builder.Services.AddTransient<IGenreControllerService, GenreControllerService>();
-
-builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("MailSettings"));
-
-builder.Services.AddTransient<IEmailService, EmailService>();
-
-builder.Services.Configure<ApiKeys>(builder.Configuration.GetSection("ApiKeys"));
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
@@ -176,51 +149,49 @@ var app = builder.Build();
     app.UseSwaggerUI();
 //}
 
-// Images
-string imagesDirPath = app.Services.GetRequiredService<IImageService>().ImagesDir;
+app.UseHttpsRedirection();
 
-if (!Directory.Exists(imagesDirPath))
-{
-    Directory.CreateDirectory(imagesDirPath);
-}
+// Static files
+var rootPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
+var dataPath = Path.Combine(rootPath, Settings.StaticPath);
+
+var artistsPath = Path.Combine(dataPath, Settings.ArtistsPath);
+var avatarsPath = Path.Combine(dataPath, Settings.AvatarsPath);
+var playlistsPath = Path.Combine(dataPath, Settings.PlaylistsPath);
+var albumsPath = Path.Combine(dataPath, Settings.AlbumsPath);
+var genresPath = Path.Combine(dataPath, Settings.GenresPath);
+
+var tracksPath = Path.Combine(dataPath, Settings.TracksPath);
+var trackCoversPath = Path.Combine(dataPath, Settings.TrackCoversPath);
+
+Directory.CreateDirectory(rootPath);
+Directory.CreateDirectory(dataPath);
+Directory.CreateDirectory(artistsPath);
+Directory.CreateDirectory(avatarsPath);
+Directory.CreateDirectory(playlistsPath);
+Directory.CreateDirectory(albumsPath);
+Directory.CreateDirectory(genresPath);
+Directory.CreateDirectory(tracksPath);
+Directory.CreateDirectory(trackCoversPath);
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(imagesDirPath),
-    RequestPath = "/images"
+    FileProvider = new PhysicalFileProvider(dataPath),
+    RequestPath = "/data"
 });
 
-// Audio
-string audioDirPath = app.Services.GetRequiredService<IAudioService>().AudioDir;
+app.UseCors("localhost5173");
 
-if (!Directory.Exists(audioDirPath))
-{
-    Directory.CreateDirectory(audioDirPath);
-}
-
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(audioDirPath),
-    RequestPath = "/audio"
-});
-
-// Cors
-app.UseCors(
-    configuration => configuration
-        .AllowAnyOrigin()
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-);
+app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllers();
 
-await using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateAsyncScope())
+using (var scope = app.Services.CreateScope())
 {
-    await scope.ServiceProvider.GetRequiredService<IMigrationService>().MigrateLatestAsync();
-    await scope.ServiceProvider.GetRequiredService<IIdentitySeeder>().SeedAsync();
-    await scope.ServiceProvider.GetRequiredService<IDataSeeder>().SeedAsync();
+    var services = scope.ServiceProvider;
+    await Seeder.SeedAsync(services);
 }
 
 app.Run();

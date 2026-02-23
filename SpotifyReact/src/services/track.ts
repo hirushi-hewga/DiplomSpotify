@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { ITrack, ITrackCreate, ITrackUpdate, ITrackFilter, ITracksResponse } from "interfaces/track"; // Додайте TrackFilterVm
+import { ITrack, ITrackCreate, ITrackUpdate, ITrackFilter, ITracksResponse } from "services/types/track"; // Додайте TrackFilterVm
 import { createBaseQuery } from "utils/baseQuery.ts";
 
 export const trackApi = createApi({

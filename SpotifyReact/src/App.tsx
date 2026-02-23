@@ -1,68 +1,95 @@
-import "./App.css";
-import { Route, Routes } from "react-router-dom";
-import AdminLayout from "components/admin/AdminLayout.tsx";
-import ArtistCreatePage from 'components/pages/admin/artist/ArtistCreatePage.tsx';
-import AccountLayout from "components/pages/auth/AccountLayout.tsx";
-import LoginPage from "components/pages/auth/LoginPage.tsx";
-import RegisterPage from "components/pages/auth/RegisterPage.tsx";
-import Layout from "components/main/Layout.tsx";
-import BackgroundSetter from "components/BackgroundSetter";
-import SubscriptionsPage from "components/pages/main/SubscriptionsPage";
-import PaymentPage from "components/pages/main/PaymentPage";
-import GenresPage from "components/pages/main/GenresPage";
-import PlaylistsPage from "components/pages/main/PlaylistsPage";
-import FavoritePage from "components/pages/main/FavoritePage";
+import TopScroll from "components/TopScroll.tsx";
 import { PlayerProvider } from "components/main/player/PlayerProvider";
-import PrivateRoute from "components/pages/auth/PrivateRoute";
-import ResetPasswordPage from "components/pages/auth/ResetPasswordPage";
-import ForgotPasswordPage from "components/pages/auth/ForgotPasswordPage";
-import ArtistsPage from "components/pages/main/ArtistsPage.tsx";
-import ArtistPage from "components/pages/admin/artist/ArtistPage";
-import PlaylistPage from "components/pages/main/PlaylistPage";
-import HomePage from "components/pages/main/home/HomePage";
+import AuthLayout from "components/pages/auth/AuthLayout.tsx";
+import LoginPage from "components/pages/auth/Login/LoginPage.tsx";
+import RegisterDetailsPage from "components/pages/auth/Register/RegisterDetailsPage.tsx";
+import RegisterEmailPage from "components/pages/auth/Register/RegisterEmailPage.tsx";
+import RegisterPasswordPage from "components/pages/auth/Register/RegisterPasswordPage.tsx";
+import ResetPasswordPage1 from "components/pages/auth/ResetPassword/ResetPasswordPage1.tsx";
+import ResetPasswordPage2 from "components/pages/auth/ResetPassword/ResetPasswordPage2.tsx";
+import ResetPasswordPage3 from "components/pages/auth/ResetPassword/ResetPasswordPage3.tsx";
+import SignInLayout from "components/pages/auth/SignInLayout.tsx";
+import SignUpLayout from "components/pages/auth/SignUpLayout.tsx";
+import JobPage from "components/pages/main/JobPage.tsx";
+import DownloadPage from "components/pages/main/DownloadPage.tsx";
+import ForArtistsPage from "components/pages/main/ForArtistsPage.tsx";
+import ForDevelopersPage from "components/pages/main/ForDevelopersPage.tsx";
+import JobsPage from "components/pages/main/JobsPage.tsx";
+import StartPage from "components/pages/main/StartPage.tsx";
+import SupportPage from "components/pages/main/SupportPage.tsx";
+import VacancyPage from "components/pages/main/VacancyPage.tsx";
+import HomePage from "components/pages/main/home/HomePage.tsx";
+import NotFoundPage from "components/pages/notFound/NotFoundPage.tsx";
+import { useSelector } from "react-redux";
+import { Navigate, Route, Routes } from "react-router-dom";
+
+
+
+import "./App.css";
+import { getUser } from "./store/slice/userSlice.ts";
+import ProtectedLayout from "components/pages/main/home/ProtectedLayout.tsx";
+import PlaylistsPage from "components/pages/main/home/PlaylistsPage.tsx";
+import AccountPage from "components/pages/main/account/AccountPage.tsx";
+import AccountLayout from "components/pages/main/account/AccountLayout.tsx";
+import AdminPage from "components/pages/admin/AdminPage.tsx";
+
 
 const App = () => {
+  const user = useSelector(getUser);
+
+  const isAdmin = (role?: string | string[]) =>
+    Array.isArray(role)
+      ? role.includes("admin")
+      : role === "admin";
+
   return (
     <PlayerProvider>
-      <BackgroundSetter/>
+      <TopScroll />
       <Routes>
-      
-        <Route element={<PrivateRoute/>}>
-          <Route path="/" element={<Layout/>}>
-            <Route path="/" element={<HomePage/>}/>
-            <Route path="favorite" element={<FavoritePage/>}/>
+        <Route path="/">
+          <Route path="/" element={user ? <Navigate to="/home" replace /> : <StartPage />} />
+          <Route path="developer" element={<ForDevelopersPage />} />
+          <Route path="artist" element={<ForArtistsPage />} />
+          <Route path="support" element={<SupportPage />} />
+          <Route path="download" element={<DownloadPage />} />
+          <Route path="vacancy" element={<VacancyPage />} />
+          <Route path="jobs" element={<JobsPage />} />
+          <Route path="job" element={<JobPage />} />
 
-            <Route path="albums" element={<></>}/>
-            <Route path="playlists" element={<PlaylistsPage/>}/>
-            <Route path="playlist" element={<PlaylistPage />} />
-            <Route path="artists" element={<ArtistsPage/>}/>
-            <Route path="account" element={<></>}/>
-        
-            <Route path="friends" element={<></>}/>
-            <Route path="genres" element={<GenresPage/>}/>
-            <Route path="notification" element={<></>}/>
-        
-            <Route path="premium" element={<SubscriptionsPage/>}/>
-            <Route path="payment" element={<PaymentPage/>}/>
-          </Route>
-
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route path="artists">
-              <Route path="list" element={<ArtistPage />} />
-              <Route path="create" element={<ArtistCreatePage />} />
+          <Route path="" element={<ProtectedLayout />} >
+            <Route path="home" element={<HomePage />} >
+              <Route path="playlists" element={<PlaylistsPage />} />
+            </Route>
+            <Route path="account" element={<AccountLayout />} >
+              <Route path="" element={<AccountPage />} />
             </Route>
           </Route>
         </Route>
 
-        <Route element={<AccountLayout />}>
-          <Route path="register" element={<RegisterPage/>}/>
-          <Route path="login" element={<LoginPage />} />
-          <Route path="resetPassword" element={<ResetPasswordPage />} />
-          <Route path="forgotPassword" element={<ForgotPasswordPage/>} />
+        {isAdmin(user?.role) && (
+          <Route path="admin" element={<AdminPage />} />
+        )}
+
+        <Route element={<AuthLayout />}>
+          <Route path="register" element={<SignUpLayout />}>
+            <Route path="email" element={<RegisterEmailPage />} />
+            <Route path="password" element={<RegisterPasswordPage />} />
+            <Route path="details" element={<RegisterDetailsPage />} />
+          </Route>
+
+          <Route element={<SignInLayout />}>
+            <Route path="login" element={<LoginPage />} />
+            <Route path="reset-password">
+              <Route path="email" element={<ResetPasswordPage1 />} />
+              <Route path="password" element={<ResetPasswordPage2 />} />
+              <Route path="success" element={<ResetPasswordPage3 />} />
+            </Route>
+          </Route>
         </Route>
-    
+
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </PlayerProvider>
   );
-}
-export default App
+};
+export default App;
