@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 
@@ -6,12 +7,24 @@ namespace SpotifyAPI.BLL.Services.Image;
 public class FileService : IFileService
 {
     private readonly string _dataRoot;
-    private readonly IHttpClientFactory _httpFactory;
+    private readonly HttpClient _http;
 
-    public FileService(IWebHostEnvironment env, IHttpClientFactory httpFactory)
+    public FileService(IWebHostEnvironment env)
     {
         _dataRoot = Path.Combine(env.ContentRootPath, "wwwroot", Settings.StaticPath);
-        _httpFactory = httpFactory;
+
+        var handler = new HttpClientHandler
+        {
+            AllowAutoRedirect = true,
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
+        };
+
+        _http = new HttpClient(handler)
+        {
+            Timeout = TimeSpan.FromMinutes(5)
+        };
+
+        _http.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0");
     }
 
     public async Task<string?> SaveImageAsync(IFormFile file, string folder)
@@ -50,13 +63,11 @@ public class FileService : IFileService
         return $"{Settings.TracksPath}/{name}";
     }
 
-    // ✅ Нове: скачати і зберегти картинку
     public async Task<string?> SaveImageFromUrlAsync(string url, string folder, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(url)) return null;
 
-        var client = _httpFactory.CreateClient();
-        using var res = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct);
+        using var res = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct);
         if (!res.IsSuccessStatusCode) return null;
 
         var contentType = res.Content.Headers.ContentType?.MediaType ?? "";
@@ -69,41 +80,53 @@ public class FileService : IFileService
         Directory.CreateDirectory(dir);
 
         var path = Path.Combine(dir, name);
-
-        await using var input = await res.Content.ReadAsStreamAsync(ct);
-        await using var output = File.Create(path);
-        await input.CopyToAsync(output, ct);
+        await using var fs = File.Create(path);
+        await res.Content.CopyToAsync(fs, ct);
 
         return $"{folder}/{name}";
     }
 
-    // ✅ Нове: скачати і зберегти аудіо (preview mp3)
     public async Task<string?> SaveAudioFromUrlAsync(string url, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(url)) return null;
 
-        var client = _httpFactory.CreateClient();
-        using var res = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct);
+        using var res = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct);
         if (!res.IsSuccessStatusCode) return null;
 
         var contentType = res.Content.Headers.ContentType?.MediaType ?? "";
-        // Deezer preview зазвичай audio/mpeg
-        if (!contentType.StartsWith("audio/") && !url.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase))
+
+        if (!(contentType.StartsWith("audio/") || contentType == "application/octet-stream"))
             return null;
 
-        var ext = GuessExt(contentType, url) ?? ".mp3";
+        var ext = ".mp3";
         var name = $"{Guid.NewGuid()}{ext}";
 
         var dir = Path.Combine(_dataRoot, Settings.TracksPath);
         Directory.CreateDirectory(dir);
 
         var path = Path.Combine(dir, name);
-
-        await using var input = await res.Content.ReadAsStreamAsync(ct);
-        await using var output = File.Create(path);
-        await input.CopyToAsync(output, ct);
+        await using var fs = File.Create(path);
+        await res.Content.CopyToAsync(fs, ct);
 
         return $"{Settings.TracksPath}/{name}";
+    }
+
+    private static string? GuessExt(string contentType, string url)
+    {
+        // 1) from content-type
+        return contentType switch
+        {
+            "image/jpeg" => ".jpg",
+            "image/png" => ".png",
+            "image/webp" => ".webp",
+            "image/gif" => ".gif",
+            "audio/mpeg" => ".mp3",
+            "audio/mp3" => ".mp3",
+            "audio/wav" => ".wav",
+            "audio/x-wav" => ".wav",
+            "audio/ogg" => ".ogg",
+            _ => Path.GetExtension(url).Length >= 2 ? Path.GetExtension(url) : null
+        };
     }
 
     public void Delete(string relativePath)
@@ -111,19 +134,5 @@ public class FileService : IFileService
         var fullPath = Path.Combine(_dataRoot, relativePath);
         if (File.Exists(fullPath))
             File.Delete(fullPath);
-    }
-
-    private static string? GuessExt(string contentType, string url)
-    {
-        // 1) по content-type
-        return contentType switch
-        {
-            "image/jpeg" => ".jpg",
-            "image/png" => ".png",
-            "image/webp" => ".webp",
-            "audio/mpeg" => ".mp3",
-            "audio/mp3" => ".mp3",
-            _ => Path.GetExtension(new Uri(url).AbsolutePath) is { Length: > 1 } e ? e : null
-        };
     }
 }

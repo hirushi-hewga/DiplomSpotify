@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace SpotifyAPI.Controllers;
 
 [ApiController]
-[Route("api/album")]
+[Route("api/playlist")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class AlbumController : AppController
+public class PlaylistController : AppController
 {
     
 }

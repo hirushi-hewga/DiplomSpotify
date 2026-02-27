@@ -57,6 +57,18 @@ const Header = ({signInTextColor = "", sidebarOpenHandler = () => {}, isSidebarO
           className="h-full hover:cursor-pointer"
         />
       </div>
+      <div className={clsx((mainPath!=="home" && mainPath!=="admin") && "hidden", "w-[332px] h-full flex items-center justify-between rounded-full backdrop-blur-[8.3px] border-[1px] border-white/[80%] bg-white/[10%]")}>
+        <img
+          src="/assets/icons/icon8.svg"
+          alt="icon"
+          className="w-[20px] ml-[32px]"
+        />
+        <input
+          type="text"
+          placeholder="Search songs, artists, albums..."
+          className="flex-1 mx-[10px] bg-transparent font-normal font-inter  text-[16px] text-white placeholder-[#919090] border-none focus:ring-0"
+        />
+      </div>
       <div className={clsx((pathname === "/vacancy") && "hidden", "gap-[24px] h-full flex items-center justify-between")}>
         <div className={clsx((mainPath==="home" || mainPath==="admin") && "hidden", "w-[106px] h-[54px] flex items-center justify-center")}>
           <Link to="/support" className={clsx((pathname === "/developer") && "invisible", "text-white font-semibold font-poppins text-[20px]")}>

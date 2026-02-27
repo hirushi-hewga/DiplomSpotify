@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useState } from "react";
 
 type UseVisibleCountArgs = {
   itemWidth: number;
@@ -7,6 +7,7 @@ type UseVisibleCountArgs = {
   rows?: number;
   minItems?: number;
   maxItems?: number;
+  paddingIsBothSides?: boolean;
 };
 
 export function useVisibleCount({
@@ -16,53 +17,59 @@ export function useVisibleCount({
                                   rows = 1,
                                   minItems = 0,
                                   maxItems,
+                                  paddingIsBothSides = false,
                                 }: UseVisibleCountArgs) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [count, setCount] = useState(minItems);
+  const [node, setNode] = useState<HTMLDivElement | null>(null);
+  const [visibleCount, setVisibleCount] = useState(minItems);
 
-  const recalc = () => {
-    const el = ref.current;
-    if (!el) return;
+  const recalc = useCallback(() => {
+    if (!node) return;
 
-    const containerWidth = el.clientWidth;
+    const containerWidth = node.clientWidth;
+    if (containerWidth <= 0) return;
 
-    const available = Math.max(0, containerWidth - paddingX);
+    const paddingTotal = paddingIsBothSides ? paddingX * 2 : paddingX;
+    const available = Math.max(0, containerWidth - paddingTotal);
 
     const cols =
       gapX > 0
         ? Math.floor((available + gapX) / (itemWidth + gapX))
         : Math.floor(available / itemWidth);
 
-    let next = cols * rows;
+    let next = Math.max(minItems, cols * rows);
 
-    // max
-    next = Math.max(minItems, next);
-
-    // min
-    if (maxItems !== undefined) {
-      next = Math.min(next, maxItems);
-    }
+    if (maxItems !== undefined) next = Math.min(next, maxItems);
 
     if (rows > 1) {
       next = Math.floor(next / rows) * rows;
+      next = Math.max(minItems, next);
     }
 
-    setCount(next);
-  };
+    setVisibleCount((prev) => (prev === next ? prev : next));
+  }, [node, itemWidth, gapX, paddingX, rows, minItems, maxItems, paddingIsBothSides]);
+
+  const ref = useCallback((el: HTMLDivElement | null) => {
+    setNode(el);
+  }, []);
 
   useLayoutEffect(() => {
-    recalc();
-  }, []);
+    if (!node) return;
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    recalc();
+
+    const raf = requestAnimationFrame(recalc);
 
     const ro = new ResizeObserver(recalc);
-    ro.observe(el);
+    ro.observe(node);
 
-    return () => ro.disconnect();
-  }, []);
+    window.addEventListener("resize", recalc);
 
-  return { ref, visibleCount: count };
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      window.removeEventListener("resize", recalc);
+    };
+  }, [node, recalc]);
+
+  return { ref, visibleCount, recalc };
 }

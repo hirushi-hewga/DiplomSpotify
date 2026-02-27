@@ -9,7 +9,7 @@ namespace SpotifyAPI.Controllers;
 
 [ApiController]
 [Route("api/artist")]
-[Authorize(Roles = "admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ArtistController : AppController
 {
     private readonly IArtistService _service;
@@ -20,29 +20,29 @@ public class ArtistController : AppController
     }
 
     [HttpPost]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Create([FromForm] ArtistCreateDto dto)
         => CreateActionResult(await _service.CreateAsync(dto));
 
     [HttpPut]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Update([FromForm] ArtistUpdateDto dto)
         => CreateActionResult(await _service.UpdateAsync(dto));
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Delete(string id)
         => CreateActionResult(await _service.DeleteAsync(id));
     
     [HttpGet("favourites")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> GetFavourite([FromQuery] string userId)
         => CreateActionResult(await _service.GetFavouriteAsync(userId));
     
     [HttpGet]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> GetPage([FromQuery] PageQuery q)
         => CreateActionResult(await _service.GetPageAsync(q));
 
     [HttpGet("{id}")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> GetById(string id)
         => CreateActionResult(await _service.GetByIdAsync(id));
 }
