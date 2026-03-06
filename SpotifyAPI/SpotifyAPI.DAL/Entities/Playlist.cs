@@ -5,8 +5,10 @@ namespace SpotifyAPI.DAL.Entities
     public class Playlist : BaseEntity<string>
     {
         public override string Id { get; set; } = Guid.NewGuid().ToString();
-        public string Name { get; set; }
-        public string Image { get; set; }
+        public required string Name { get; set; }
+        public required string Title { get; set; }
+        public bool IsBlackTitle { get; set; } = false;
+        public string Image { get; set; } = string.Empty;
         
         [MaxLength(255)]
         public string? UserId { get; set; }

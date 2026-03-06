@@ -3,8 +3,17 @@ import "swiper/css";
 import Footer from "components/main/Footer.tsx";
 import Header from "components/main/Header.tsx";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const StartPage = () => {
+  const [active, setActive] = useState<"views" | "listenings" | "downloads">(
+    "views"
+  );
+
+  const baseClass = "text-[16px] bg-[#F16001]/[25%]";
+  const activeClass = "py-[15px] px-[32px]";
+  const inactiveClass = "py-[9px] px-[40px]";
+
   const navigate = useNavigate();
 
   return (
@@ -25,27 +34,30 @@ const StartPage = () => {
           <div className="absolute bottom-0 font-poppins text-[152px]">10.9M</div>
         </div>
         <div className="w-full h-[370px] absolute bottom-0 overflow-hidden backdrop-blur-[8.3px] border-black/[80%] border-[1px]">
-          <div className="w-[367px] h-[49px] absolute left-[120px] top-[37px] flex">
-            <div className="w-[114px] h-full ">
+          <div className="absolute top-[37px] left-[120px] flex gap-x-[12px] items-center">
+            <div>
               <Button
-                variant="shadow"
-                className="text-[16px]"
+                variant="transparent"
+                className={`${baseClass} ${active === "views" ? activeClass : inactiveClass}`}
+                onClick={() => setActive("views")}
               >
                 Views
               </Button>
             </div>
-            <div className="w-[113px] h-full absolute left-[126px] ">
+            <div>
               <Button
                 variant="transparent"
-                className="text-[16px]"
+                className={`${baseClass} ${active === "listenings" ? activeClass : inactiveClass}`}
+                onClick={() => setActive("listenings")}
               >
                 Listenings
               </Button>
             </div>
-            <div className="w-[116px] h-full absolute left-[251px] ">
+            <div>
               <Button
                 variant="transparent"
-                className="text-[16px]"
+                className={`${baseClass} ${active === "downloads" ? activeClass : inactiveClass}`}
+                onClick={() => setActive("downloads")}
               >
                 Downloads
               </Button>

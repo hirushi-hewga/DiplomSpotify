@@ -4,7 +4,7 @@ import { getUser } from "../../../store/slice/userSlice.ts";
 
 const AuthLayout = () => {
   const user = useSelector(getUser);
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <Navigate to="/home" replace />;
   return <Outlet />;
 };
 

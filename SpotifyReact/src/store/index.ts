@@ -10,10 +10,12 @@ import { trackApi } from "services/track";
 import { likeApi } from "services/like";
 import { playlistTracksApi } from "services/playlistTrack";
 import { albumApi } from "services/album";
+import { playerReducer } from "./slice/playerSlice.ts";
 
 export const store = configureStore({
     reducer: {
         user: userReducer,
+        player: playerReducer,
         [userApi.reducerPath]: userApi.reducer,
         [artistApi.reducerPath]: artistApi.reducer,
         [genreApi.reducerPath]: genreApi.reducer,

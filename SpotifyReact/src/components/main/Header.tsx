@@ -19,9 +19,6 @@ const Header = ({signInTextColor = "", sidebarOpenHandler = () => {}, isSidebarO
       ? role.includes("admin")
       : role === "admin";
 
-  const margin = `${(pathname==="/support" || 
-                      pathname==="/download" ||
-                      mainPath==="home")?'80':'56'}px`;
   const height = `${(mainPath==="home" || mainPath==="admin")?'39':'67'}px`;
 
   const API_URL = "http://localhost:5014";
@@ -31,14 +28,13 @@ const Header = ({signInTextColor = "", sidebarOpenHandler = () => {}, isSidebarO
   const handleLogout = () => {
     setUserMenuOpen(false);
     dispatch(logOut())
-    navigate("/")
+    navigate("/start")
   }
 
   return (
     <div
-      className="w-full px-[120px] flex items-center justify-between"
+      className="w-full mt-[80px] px-[120px] flex items-center justify-between"
       style={{
-        marginTop: margin,
         height: height,
       }}>
       <div className="h-full flex items-center gap-[24px]">
@@ -46,15 +42,15 @@ const Header = ({signInTextColor = "", sidebarOpenHandler = () => {}, isSidebarO
           <img
             src="/assets/icons/icon12.svg"
             alt="icon"
-            className={clsx(isSidebarOpen && "-rotate-90", "transition-transform duration-300 h-[24px] hover:cursor-pointer")}
+            className={clsx(isSidebarOpen && "-rotate-90", "transition-transform duration-300 h-[24px] hover:cursor-pointer z-10")}
             onClick={sidebarOpenHandler}
           />
         </div>
         <img
           src="/assets/icons/text_logo.svg"
           alt="logo"
-          onClick={() => {navigate("/")}}
-          className="h-full hover:cursor-pointer"
+          onClick={() => {navigate(user ? "/home" : "/start")}}
+          className="h-full hover:cursor-pointer z-10"
         />
       </div>
       <div className={clsx((mainPath!=="home" && mainPath!=="admin") && "hidden", "w-[332px] h-full flex items-center justify-between rounded-full backdrop-blur-[8.3px] border-[1px] border-white/[80%] bg-white/[10%]")}>
@@ -69,19 +65,19 @@ const Header = ({signInTextColor = "", sidebarOpenHandler = () => {}, isSidebarO
           className="flex-1 mx-[10px] bg-transparent font-normal font-inter  text-[16px] text-white placeholder-[#919090] border-none focus:ring-0"
         />
       </div>
-      <div className={clsx((pathname === "/vacancy") && "hidden", "gap-[24px] h-full flex items-center justify-between")}>
-        <div className={clsx((mainPath==="home" || mainPath==="admin") && "hidden", "w-[106px] h-[54px] flex items-center justify-center")}>
-          <Link to="/support" className={clsx((pathname === "/developer") && "invisible", "text-white font-semibold font-poppins text-[20px]")}>
+      <div className={clsx((pathname === "/vacancy") && "hidden", "gap-[24px] h-full flex items-center justify-between z-10")}>
+        <div className={clsx((mainPath==="home" || mainPath==="admin" || pathname === "/support") && "hidden", "w-[106px] h-[54px] flex items-center justify-center")}>
+          <Link to="/support" className="text-white font-semibold font-poppins text-[20px]">
             Support
           </Link>
         </div>
-        <div className={clsx(((mainPath==="home" && pathname!=="/home/settings") || (mainPath==="admin")) && "hidden", "w-[173px] h-[54px] flex items-center justify-center")}>
-          <Link to="/download" className={clsx((pathname === "/developer") && "invisible", "text-white font-semibold font-poppins text-[20px]")}>
+        <div className={clsx(((mainPath==="home" && pathname!=="/home/settings") || (mainPath==="admin") || (pathname === "/download")) && "hidden", "w-[173px] h-[54px] flex items-center justify-center")}>
+          <Link to="/download" className="text-white font-semibold font-poppins text-[20px]">
             Download app
           </Link>
         </div>
         <div className={clsx(((mainPath==="home" && pathname!=="/home/settings") || (mainPath==="admin")) && "hidden", "w-[23px] h-[54px] flex items-center justify-center")}>
-          <div className={clsx((pathname === "/developer") && "invisible", "w-[3px] h-[34px] bg-white")}/>
+          <div className="w-[3px] h-[34px] bg-white"/>
         </div>
         <div className={clsx(user && "hidden", "w-[132px] h-full")}>
           <Button
@@ -116,10 +112,15 @@ const Header = ({signInTextColor = "", sidebarOpenHandler = () => {}, isSidebarO
           <img
             src="/assets/icons/icon19.svg"
             alt="icon"
-            className={`${(mainPath !== "account" && pathname !== "/home/settings") && "hidden"} h-[6.58px]`}
+            className={`${mainPath === "home" && "hidden"} h-[6.58px]`}
           />
-          <div className={clsx(!userMenuOpen && "hidden", "w-[182px] h-[288px] flex items-center rounded-[20px] bg-[#383838]/[20%] border border-white/[80%] backdrop-blur-[8.3px] absolute right-0 bottom-[-300px] z-10")}>
-            <div className="h-[216px] ml-[22px] flex flex-col justify-between font-semibold font-inter text-[20px] text-white">
+          <div className={clsx(!userMenuOpen && "hidden", "flex items-center rounded-[20px] bg-[#383838]/[20%] border border-white/[80%] backdrop-blur-[8.3px] absolute right-0 top-[80px] z-10")}>
+            <div className="my-[36px] ml-[22px] mr-[28px] gap-y-[16px] flex flex-col justify-between font-semibold font-inter text-[20px] text-white">
+              {isAdmin(user?.role) && (
+                <Link to="/admin" className="m-auto flex items-center hover:cursor-pointer text-neutral-400 text-[20px]">
+                  AdminPanel
+                </Link>
+              )}
               <Link to="/account" className="gap-[12px] flex items-center hover:cursor-pointer">
                 <div className="w-[24px] h-[24px] flex items-center justify-center">
                   <img src="/assets/icons/icon13.svg" alt="icon" className="h-[21px]"/>

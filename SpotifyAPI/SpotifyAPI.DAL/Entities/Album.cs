@@ -13,6 +13,8 @@ namespace SpotifyAPI.DAL.Entities
         public string? ArtistId { get; set; }
         public Artist? Artist { get; set; }
 
+        
+        public List<AlbumLike> AlbumLikes { get; set; } = [];
         public List<Track> Tracks { get; set; } = [];
     }
 }

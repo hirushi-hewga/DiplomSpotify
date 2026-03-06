@@ -14,7 +14,11 @@ using SpotifyAPI.DataInitializer;
 using SpotifyAPI.BLL.MapperProfiles;
 using SpotifyAPI.BLL.Services;
 using SpotifyAPI.BLL.Services.Image;
+using SpotifyAPI.DAL.Repositories.Album;
+using SpotifyAPI.DAL.Repositories.Artist;
 using SpotifyAPI.DAL.Repositories.Jwt;
+using SpotifyAPI.DAL.Repositories.Playlist;
+using SpotifyAPI.DAL.Repositories.Track;
 using SpotifyAPI.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,6 +50,10 @@ builder.Services.AddServices();
 
 // Add repositories
 builder.Services.AddScoped<IJwtRepository, JwtRepository>();
+builder.Services.AddScoped<IPlaylistRepository, PlaylistRepository>();
+builder.Services.AddScoped<ITrackRepository, TrackRepository>();
+builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
+builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
 
 builder.Services.AddControllers();
 
@@ -57,6 +65,10 @@ builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddProfile<RoleMapperProfile>();
     cfg.AddProfile<UserMapperProfile>();
+    cfg.AddProfile<PlaylistMapperProfile>();
+    cfg.AddProfile<TrackMapperProfile>();
+    cfg.AddProfile<AlbumMapperProfile>();
+    cfg.AddProfile<ArtistMapperProfile>();
 });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

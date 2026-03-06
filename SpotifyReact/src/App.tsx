@@ -21,9 +21,7 @@ import VacancyPage from "components/pages/main/VacancyPage.tsx";
 import HomePage from "components/pages/main/home/HomePage.tsx";
 import NotFoundPage from "components/pages/notFound/NotFoundPage.tsx";
 import { useSelector } from "react-redux";
-import { Navigate, Route, Routes } from "react-router-dom";
-
-
+import { Route, Routes } from "react-router-dom";
 
 import "./App.css";
 import { getUser } from "./store/slice/userSlice.ts";
@@ -32,10 +30,21 @@ import PlaylistsPage from "components/pages/main/home/PlaylistsPage.tsx";
 import AccountPage from "components/pages/main/account/AccountPage.tsx";
 import AccountLayout from "components/pages/main/account/AccountLayout.tsx";
 import AdminPage from "components/pages/admin/AdminPage.tsx";
+import HomeLayout from "components/pages/main/home/HomeLayout.tsx";
+import { useState } from "react";
+import AlbumsPage from "components/pages/main/home/AlbumsPage.tsx";
+import FavouritesPage from "components/pages/main/home/FavouritesPage.tsx";
+import ReleasesPage from "components/pages/main/home/ReleasesPage.tsx";
 
 
 const App = () => {
   const user = useSelector(getUser);
+
+  const [playlistModalOpen, setPlaylistModalOpen] = useState(false);
+  const playlistModalOpenHandler = () => setPlaylistModalOpen(!playlistModalOpen);
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarOpenHandler = () => setSidebarOpen(!sidebarOpen);
 
   const isAdmin = (role?: string | string[]) =>
     Array.isArray(role)
@@ -47,7 +56,7 @@ const App = () => {
       <TopScroll />
       <Routes>
         <Route path="/">
-          <Route path="/" element={user ? <Navigate to="/home" replace /> : <StartPage />} />
+          <Route path="start" element={<StartPage />} />
           <Route path="developer" element={<ForDevelopersPage />} />
           <Route path="artist" element={<ForArtistsPage />} />
           <Route path="support" element={<SupportPage />} />
@@ -56,9 +65,18 @@ const App = () => {
           <Route path="jobs" element={<JobsPage />} />
           <Route path="job" element={<JobPage />} />
 
-          <Route path="" element={<ProtectedLayout />} >
-            <Route path="home" element={<HomePage />} >
-              <Route path="playlists" element={<PlaylistsPage />} />
+          <Route path="/" element={<ProtectedLayout />} >
+            <Route path="home" element={<HomeLayout
+              playlistModalOpen={playlistModalOpen}
+              playlistModalOpenHandler={playlistModalOpenHandler}
+              sidebarOpen={sidebarOpen}
+              sidebarOpenHandler={sidebarOpenHandler}
+            />} >
+              <Route path="" element={<HomePage playlistModalOpenHandler={playlistModalOpenHandler} />} />
+              <Route path="playlists" element={<PlaylistsPage playlistModalOpenHandler={playlistModalOpenHandler} sidebarOpen={sidebarOpen} />} />
+              <Route path="albums" element={<AlbumsPage sidebarOpen={sidebarOpen} />} />
+              <Route path="favourites" element={<FavouritesPage />} />
+              <Route path="releases" element={<ReleasesPage />} />
             </Route>
             <Route path="account" element={<AccountLayout />} >
               <Route path="" element={<AccountPage />} />

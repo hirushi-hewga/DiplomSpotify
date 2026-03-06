@@ -1,20 +1,25 @@
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using SpotifyAPI.BLL.DTOs;
 using SpotifyAPI.BLL.DTOs.Artist;
 using SpotifyAPI.BLL.Services.Image;
 using SpotifyAPI.DAL;
+using SpotifyAPI.DAL.Repositories.Artist;
 
 namespace SpotifyAPI.BLL.Services.Artist;
 
 public class ArtistService : IArtistService
 {
-    private readonly AppDbContext _context;
+    private readonly IArtistRepository _repository;
     private readonly IFileService _fileService;
+    private readonly IMapper _mapper;
 
-    public ArtistService(AppDbContext context, IFileService imageService)
+    public ArtistService(IArtistRepository repository, IFileService imageService, IMapper mapper)
     {
-        _context = context;
+        _repository = repository;
         _fileService = imageService;
+        _mapper = mapper;
     }
 
     public async Task<ServiceResponse> CreateAsync(ArtistCreateDto dto)
@@ -39,10 +44,12 @@ public class ArtistService : IArtistService
                 entity.Image = Path.Combine(Settings.ArtistsPath, fileName).Replace("\\", "/");
             }
 
-            _context.Artists.Add(entity);
-            await _context.SaveChangesAsync();
+            var result = await _repository.CreateAsync(entity);
+            
+            if (!result)
+                return new ServiceResponse("Failed to create artist");
 
-            return new ServiceResponse("Artist created", true, new { id = entity.Id });
+            return new ServiceResponse("Artist created", true);
         }
         catch (Exception ex)
         {
@@ -54,17 +61,11 @@ public class ArtistService : IArtistService
     {
         try
         {
-            var dto = await _context.Artists
+            var dto = await _repository
+                .GetAll()
                 .AsNoTracking()
                 .Where(a => a.Id == id)
-                .Select(a => new ArtistDto
-                {
-                    Id = a.Id,
-                    Name = a.Name,
-                    Image = a.Image,
-                    AlbumsCount = a.Albums.Count,
-                    FollowersCount = a.Followers.Count
-                })
+                .ProjectTo<ArtistDto>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
 
             if (dto == null)
@@ -85,7 +86,7 @@ public class ArtistService : IArtistService
             if (string.IsNullOrWhiteSpace(dto.Id))
                 return new ServiceResponse("Id is required");
 
-            var entity = await _context.Artists.FirstOrDefaultAsync(a => a.Id == dto.Id);
+            var entity = await _repository.GetByIdAsync(dto.Id);
             if (entity == null)
                 return new ServiceResponse("Artist not found");
 
@@ -106,9 +107,10 @@ public class ArtistService : IArtistService
                     _fileService.Delete(oldPath);
             }
 
-            entity.UpdatedDate = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
+            var result = await _repository.UpdateAsync(entity);
+            
+            if (!result)
+                return new ServiceResponse("Failed to update artist");
 
             return new ServiceResponse("Artist updated", true);
         }
@@ -122,15 +124,17 @@ public class ArtistService : IArtistService
     {
         try
         {
-            var entity = await _context.Artists.FirstOrDefaultAsync(a => a.Id == id);
+            var entity = await _repository.GetByIdAsync(id);
             if (entity == null)
                 return new ServiceResponse("Artist not found");
 
             if (!string.IsNullOrEmpty(entity.Image))
                 _fileService.Delete(entity.Image);
 
-            _context.Artists.Remove(entity);
-            await _context.SaveChangesAsync();
+            var result = await _repository.DeleteAsync(entity);
+            
+            if (!result)
+                return new ServiceResponse("Failed to delete artist");
 
             return new ServiceResponse("Artist deleted", true);
         }
@@ -144,7 +148,7 @@ public class ArtistService : IArtistService
     {
         try
         {
-            var query = _context.Artists.AsNoTracking();
+            var query = _repository.GetAll().AsNoTracking();
 
             if (!string.IsNullOrWhiteSpace(q.Search))
             {
@@ -184,16 +188,19 @@ public class ArtistService : IArtistService
     {
         try
         {
-            var favourite = await _context.Artists
-                .AsNoTracking()
-                .Where(a => a.Followers.Any(f => f.UserId == userId))
+            var favourite = await _repository
+                .GetFavourite(userId)
+                .ProjectTo<ArtistDto>(_mapper.ConfigurationProvider)
                 .ToListAsync();
+            
+            if (favourite.Count == 0)
+                return new ServiceResponse("Artists not found");
 
             return new ServiceResponse("Artists loaded", true, favourite);
         }
         catch (Exception ex)
         {
-            return new ServiceResponse($"GetPageAsync exception: {ex.GetType().Name} - {ex.Message}");
+            return new ServiceResponse($"GetFavourite exception: {ex.GetType().Name} - {ex.Message}");
         }
     }
 }

@@ -56,7 +56,7 @@ const MusicPlayer: React.FC = () => {
             {currentTrack ? (
                 <div>
                     <h3>{currentTrack.name}</h3>
-                    <p>Жанр: {currentTrack.genres.map(genre => genre.name).join(', ')}</p>
+                    <p>Genre: {currentTrack.genres.map(genre => genre.name).join(', ')}</p>
                     <audio ref={audioRef} controls />
                     <div className="controls">
                         <button onClick={handlePrevious} disabled={tracks.length <= 1}>←</button>

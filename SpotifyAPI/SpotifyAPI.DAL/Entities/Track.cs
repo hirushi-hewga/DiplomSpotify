@@ -14,6 +14,7 @@ namespace SpotifyAPI.DAL.Entities
         public string? AlbumId { get; set; }
         public Album? Album { get; set; }
         
+        public List<RecentlyPlayed> Recently { get; set; } = [];
         public List<PlaylistTrack> Playlists { get; set; } = [];
         public List<Like> Likes { get; set; } = [];
         public List<TrackGenre> Genres { get; set; } = [];
