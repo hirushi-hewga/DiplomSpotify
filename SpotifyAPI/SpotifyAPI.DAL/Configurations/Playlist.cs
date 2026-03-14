@@ -9,8 +9,12 @@ public class Playlist : IEntityTypeConfiguration<Entities.Playlist>
     {
         builder.ToTable("Playlists");
 
+        builder.Property(a => a.Title)
+            .HasMaxLength(40)
+            .IsRequired();
+
         builder.Property(a => a.Name)
-            .HasMaxLength(255)
+            .HasMaxLength(40)
             .IsRequired();
 
         builder.Property(a => a.Image)

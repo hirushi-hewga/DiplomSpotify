@@ -13,6 +13,7 @@ namespace SpotifyAPI.DAL.Entities
         public string? Image { get; set; }
         public DateOnly BirthDate { get; set; }
         
+        public List<AlbumLike> AlbumLikes { get; set; } = [];
         public List<Like> Likes { get; set; } = [];
         public List<Playlist> Playlists { get; set; } = [];
         public List<Follower> Subscriptions { get; set; } = [];

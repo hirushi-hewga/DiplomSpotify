@@ -1,12 +1,15 @@
 using Quartz;
 using SpotifyAPI.BLL.Services.Account;
+using SpotifyAPI.BLL.Services.Album;
 using SpotifyAPI.BLL.Services.Artist;
 using SpotifyAPI.BLL.Services.Email;
 using SpotifyAPI.BLL.Services.Image;
 using SpotifyAPI.BLL.Services.Jwt;
+using SpotifyAPI.BLL.Services.Like;
+using SpotifyAPI.BLL.Services.Playlist;
 using SpotifyAPI.BLL.Services.Role;
+using SpotifyAPI.BLL.Services.Track;
 using SpotifyAPI.BLL.Services.User;
-using SpotifyAPI.DataInitializer;
 
 namespace SpotifyAPI.Infrastructure
 {
@@ -21,7 +24,10 @@ namespace SpotifyAPI.Infrastructure
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IJwtService, JwtService>();
-            services.AddScoped<DeezerSeedService>();
+            services.AddScoped<IPlaylistService, PlaylistService>();
+            services.AddScoped<ITrackService, TrackService>();
+            services.AddScoped<IAlbumService, AlbumService>();
+            services.AddScoped<ILikeService, LikeService>();
         }
 
         public static void AddJobs(this IServiceCollection services, params (Type type, string cronExpression)[] jobs)

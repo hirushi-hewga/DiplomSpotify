@@ -57,6 +57,26 @@ namespace SpotifyAPI.DAL.Migrations
                     b.ToTable("Albums", (string)null);
                 });
 
+            modelBuilder.Entity("SpotifyAPI.DAL.Entities.AlbumLike", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("AlbumId")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime>("LikeDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId", "AlbumId");
+
+                    b.HasIndex("AlbumId");
+
+                    b.ToTable("AlbumLikes", (string)null);
+                });
+
             modelBuilder.Entity("SpotifyAPI.DAL.Entities.AppRole", b =>
                 {
                     b.Property<string>("Id")
@@ -373,10 +393,18 @@ namespace SpotifyAPI.DAL.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<bool>("IsBlackTitle")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("timestamp with time zone");
@@ -407,6 +435,34 @@ namespace SpotifyAPI.DAL.Migrations
                     b.HasIndex("TrackId");
 
                     b.ToTable("PlaylistTracks", (string)null);
+                });
+
+            modelBuilder.Entity("SpotifyAPI.DAL.Entities.RecentlyPlayed", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("PlayedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TrackId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TrackId");
+
+                    b.ToTable("RecentlyPlayed");
                 });
 
             modelBuilder.Entity("SpotifyAPI.DAL.Entities.RefreshToken", b =>
@@ -511,6 +567,25 @@ namespace SpotifyAPI.DAL.Migrations
                         .HasForeignKey("ArtistId");
 
                     b.Navigation("Artist");
+                });
+
+            modelBuilder.Entity("SpotifyAPI.DAL.Entities.AlbumLike", b =>
+                {
+                    b.HasOne("SpotifyAPI.DAL.Entities.Album", "Album")
+                        .WithMany("AlbumLikes")
+                        .HasForeignKey("AlbumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SpotifyAPI.DAL.Entities.AppUser", "User")
+                        .WithMany("AlbumLikes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Album");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SpotifyAPI.DAL.Entities.AppRoleClaim", b =>
@@ -642,6 +717,15 @@ namespace SpotifyAPI.DAL.Migrations
                     b.Navigation("Track");
                 });
 
+            modelBuilder.Entity("SpotifyAPI.DAL.Entities.RecentlyPlayed", b =>
+                {
+                    b.HasOne("SpotifyAPI.DAL.Entities.Track", "Track")
+                        .WithMany("Recently")
+                        .HasForeignKey("TrackId");
+
+                    b.Navigation("Track");
+                });
+
             modelBuilder.Entity("SpotifyAPI.DAL.Entities.RefreshToken", b =>
                 {
                     b.HasOne("SpotifyAPI.DAL.Entities.AppUser", "User")
@@ -683,6 +767,8 @@ namespace SpotifyAPI.DAL.Migrations
 
             modelBuilder.Entity("SpotifyAPI.DAL.Entities.Album", b =>
                 {
+                    b.Navigation("AlbumLikes");
+
                     b.Navigation("Tracks");
                 });
 
@@ -695,6 +781,8 @@ namespace SpotifyAPI.DAL.Migrations
 
             modelBuilder.Entity("SpotifyAPI.DAL.Entities.AppUser", b =>
                 {
+                    b.Navigation("AlbumLikes");
+
                     b.Navigation("Claims");
 
                     b.Navigation("Likes");
@@ -734,6 +822,8 @@ namespace SpotifyAPI.DAL.Migrations
                     b.Navigation("Likes");
 
                     b.Navigation("Playlists");
+
+                    b.Navigation("Recently");
                 });
 #pragma warning restore 612, 618
         }

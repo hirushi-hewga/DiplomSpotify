@@ -14,7 +14,7 @@ const Footer = ({className = ""}) => {
                   COMPANY
                 </div>
                 <div className="w-full h-[58px] flex flex-col justify-between text-[18px] ">
-                  <Link to="/">About us</Link>
+                  <Link to="/start">About us</Link>
                   <Link to="/vacancy">Vacancy</Link>
                 </div>
               </div>

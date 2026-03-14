@@ -6,10 +6,14 @@ const ProtectedLayout = () => {
   const user = useSelector(getUser);
 
   if (!user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/start" replace />;
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <Outlet />
+    </>
+  )
 };
 
 export default ProtectedLayout;

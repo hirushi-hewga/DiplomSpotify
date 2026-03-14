@@ -12,6 +12,8 @@ namespace SpotifyAPI.DAL
         public DbSet<Artist> Artists { get; set; }
         public DbSet<Album> Albums { get; set; }
         public DbSet<Track> Tracks { get; set; }
+        public DbSet<RecentlyPlayed> RecentlyPlayed { get; set; }
+        public DbSet<AlbumLike> AlbumLikes { get; set; }
         public DbSet<Playlist> Playlists { get; set; }
         public DbSet<PlaylistTrack> PlaylistTracks { get; set; }
         public DbSet<Follower> Followers { get; set; }
@@ -26,6 +28,7 @@ namespace SpotifyAPI.DAL
             
             new Configurations.Artist().Configure(modelBuilder.Entity<Artist>());
             new Configurations.Album().Configure(modelBuilder.Entity<Album>());
+            new Configurations.AlbumLike().Configure(modelBuilder.Entity<AlbumLike>());
             new Configurations.Track().Configure(modelBuilder.Entity<Track>());
             new Configurations.Playlist().Configure(modelBuilder.Entity<Playlist>());
             new Configurations.PlaylistTrack().Configure(modelBuilder.Entity<PlaylistTrack>());

@@ -7,8 +7,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { jwtParser } from "utils/jwtParser.ts";
 import { setCredentials } from "../../../../store/slice/userSlice.ts";
-import { useAppDispatch } from "store";
-import { useLoginMutation } from "services/user";
 
 
 const LoginPage = () => {
@@ -90,16 +88,22 @@ const LoginPage = () => {
               </div>
               <div className="w-full h-[128px] flex flex-col justify-between">
                 <div className="w-full h-[52px]">
-                  <Button
-                  className="bg-[#545454] font-normal text-[18px]"
-                >
-                  Sign in with Google
-                </Button>
+                  <Button className="bg-[#545454] flex gap-[10px] font-normal text-[18px]">
+                    <img
+                      src="/assets/icons/icon20.svg"
+                      alt="icon"
+                      className="h-[18px]"
+                    />
+                      Sign in with Google
+                  </Button>
                 </div>
                 <div className="w-full h-[52px]">
-                  <Button
-                    className="bg-[#545454] font-normal text-[18px]"
-                  >
+                  <Button className="bg-[#545454] flex gap-[10px] font-normal text-[18px]">
+                    <img
+                      src="/assets/icons/icon21.svg"
+                      alt="icon"
+                      className="h-[18px]"
+                    />
                     Sign in with Apple
                   </Button>
                 </div>

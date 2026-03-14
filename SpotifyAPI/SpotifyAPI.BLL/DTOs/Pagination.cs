@@ -11,7 +11,6 @@ public static class QueryablePagingExtensions
         pageSize = Math.Min(pageSize, 100);
 
         var total = await query.CountAsync();
-
         var items = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)

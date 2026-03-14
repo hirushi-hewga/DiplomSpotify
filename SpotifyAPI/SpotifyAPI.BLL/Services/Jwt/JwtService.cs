@@ -112,14 +112,12 @@ namespace SpotifyAPI.BLL.Services.Jwt
         {
             var validationParameters = new TokenValidationParameters
             {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                RequireExpirationTime = true,
+                ValidateIssuer = false,
+                ValidateAudience = false,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = _configuration["JwtSettings:Issuer"],
-                ValidAudience = _configuration["JwtSettings:Audience"],
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"] ?? "")),
+                ValidateLifetime = false,
+                RequireExpirationTime = false,
                 ClockSkew = TimeSpan.Zero
             };
 
@@ -128,9 +126,7 @@ namespace SpotifyAPI.BLL.Services.Jwt
             var result = await tokenHandler.ValidateTokenAsync(accessToken, validationParameters);
 
             if (!result.IsValid)
-            {
-                throw new SecurityTokenException("Token is not valid");
-            }
+                throw new SecurityTokenException(result.Exception?.ToString() ?? "Token is not valid");
 
             var token = result.SecurityToken as JwtSecurityToken;
 

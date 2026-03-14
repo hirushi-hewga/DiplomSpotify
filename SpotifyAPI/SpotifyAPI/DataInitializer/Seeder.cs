@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Identity;
 using SpotifyAPI.BLL;
-using SpotifyAPI.BLL.DTOs.Role;
-using SpotifyAPI.BLL.Services.Role;
 using SpotifyAPI.DAL.Entities;
 
 namespace SpotifyAPI.DataInitializer
@@ -31,7 +29,7 @@ namespace SpotifyAPI.DataInitializer
                 var res = await userManager.CreateAsync(user, "Admin123");
                 if (!res.Succeeded)
                     throw new Exception(string.Join("; ", res.Errors.Select(e => e.Description)));
-                await userManager.AddToRoleAsync(user, Settings.UserRole);
+                await userManager.AddToRoleAsync(user, Settings.AdminRole);
             }
 
             if (await userManager.FindByNameAsync("user") == null)
