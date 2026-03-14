@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Identity;
 using SpotifyAPI.BLL;
-using SpotifyAPI.BLL.DTOs.Role;
-using SpotifyAPI.BLL.Services.Role;
 using SpotifyAPI.DAL.Entities;
 
 namespace SpotifyAPI.DataInitializer

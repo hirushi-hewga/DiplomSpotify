@@ -7,7 +7,7 @@ const buttonVariants = cva("flex items-center font-poppins justify-center rounde
     variants: {
         variant: {
             primary: "font-semibold bg-white",
-            secondary: "bg-neutral-50/0 font-semibold text-white border-3 border-white",
+            secondary: "bg-neutral-50/0 font-semibold text-white border-[3px] border-white",
             shadow: "text-white bg-[#262626] shadow-[inset_4px_4px_4px_rgba(0,0,0,.25)]",
             transparent: "font-normal text-white backdrop-blur-[8.3px] border-[1px] border-white/[80%] bg-white/[10%]",
             underline: "text-xs text-white hover:bg-lightblue underline font-semibold rounded-none",

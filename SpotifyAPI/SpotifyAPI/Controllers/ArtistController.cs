@@ -35,8 +35,16 @@ public class ArtistController : AppController
         => CreateActionResult(await _service.DeleteAsync(id));
     
     [HttpGet("favourites")]
-    public async Task<IActionResult> GetFavourite([FromQuery] string userId)
-        => CreateActionResult(await _service.GetFavouriteAsync(userId));
+    public async Task<IActionResult> GetFavourite(
+        [FromQuery] string userId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 5
+    )
+        => CreateActionResult(await _service.GetFavouriteAsync(userId, page, pageSize));
+    
+    [HttpGet("track")]
+    public async Task<IActionResult> GetByTrack([FromQuery] string trackId)
+        => CreateActionResult(await _service.GetByTrackAsync(trackId));
     
     [HttpGet]
     public async Task<IActionResult> GetPage([FromQuery] PageQuery q)

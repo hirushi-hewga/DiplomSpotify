@@ -5,4 +5,5 @@ export type Track = {
   image?: string;
   path: string;
   artist: string;
+  isLiked: boolean;
 };

@@ -11,6 +11,7 @@ import { useEffect, useMemo, useRef } from "react";
 
 import { apiFetch } from "../../../../api/apiClient.ts";
 import { getUser } from "../../../../store/slice/userSlice.ts";
+import { useHomeUi } from "components/ui/HomeUiContext.tsx";
 
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -27,9 +28,11 @@ const createPlaylistSchema = z.object({
     .refine((file) => !file || ACCEPTED_IMAGE_TYPES.includes(file.type), "JPG/PNG/WEBP only"),
 });
 
-export default function CreatePlaylistModal({ isOpen = false, openHandler = () => {} }) {
+export default function CreatePlaylistModal() {
   const user = useSelector(getUser);
   const fileInputRef = useRef(null);
+
+  const { playlistModalOpen, closePlaylistModal } = useHomeUi();
 
   const {
     register,
@@ -63,8 +66,8 @@ export default function CreatePlaylistModal({ isOpen = false, openHandler = () =
   }, [previewUrl]);
 
   useEffect(() => {
-    if (!isOpen) reset();
-  }, [isOpen, reset]);
+    if (!playlistModalOpen) reset();
+  }, [playlistModalOpen, reset]);
 
   const onSubmit = async (data) => {
     if (!user) return;
@@ -92,7 +95,7 @@ export default function CreatePlaylistModal({ isOpen = false, openHandler = () =
     }
 
     console.log("Created:", await res.json().catch(() => null));
-    openHandler();
+    closePlaylistModal();
   };
 
   const triggerImagePick = () => {
@@ -111,7 +114,7 @@ export default function CreatePlaylistModal({ isOpen = false, openHandler = () =
   };
 
   return (
-    <div className={`${!isOpen && "hidden"} w-screen h-screen fixed flex items-center justify-center bg-[#0F0F10]/[60%] text-white z-20`}>
+    <div className={`${!playlistModalOpen && "hidden"} w-screen h-screen fixed flex items-center justify-center bg-[#0F0F10]/[60%] text-white z-20`}>
       <div className="flex flex-col items-center gap-y-[20px]">
         <div className="bg-[#464646] p-[48px] rounded-[20px] flex flex-col gap-y-[32px]">
           <div className="font-semibold text-center font-poppins text-[32px] text-[#F16001]">
@@ -215,7 +218,7 @@ export default function CreatePlaylistModal({ isOpen = false, openHandler = () =
 
         <div
           className="font-semibold font-poppins text-[24px] text-[#919090] hover:cursor-pointer"
-          onClick={openHandler}
+          onClick={closePlaylistModal}
         >
           Close
         </div>

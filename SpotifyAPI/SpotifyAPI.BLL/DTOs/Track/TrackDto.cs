@@ -8,4 +8,5 @@ public class TrackDto
     public required string Path { get; set; }
     public string? Image { get; set; } = string.Empty;
     public string? Artist { get; set; } = string.Empty;
+    public bool IsLiked { get; set; }
 }

@@ -30,6 +30,36 @@ public class TrackRepository
             .Where(t => t.AlbumId == albumId);
     }
 
+    public IQueryable<Entities.Track?> GetLiked(string userId)
+    {
+        return _context.Likes
+            .AsNoTracking()
+            .Where(l => l.UserId == userId)
+            .Select(l => l.Track);
+    }
+
+    public IQueryable<Entities.Track?> GetByGenre(string genre)
+    {
+        return _context.Tracks
+            .AsNoTracking()
+            .Where(t => t.Genres.Any(g => g.Genre.Name.ToLower() == genre.ToLower()));
+    }
+
+    public IQueryable<Entities.Track> GetByQuery(string query, int count)
+    {
+        query = query.ToLower();
+        var pattern = $"%{query}%";
+
+        return _context.Tracks
+            .AsNoTracking()
+            .Where(t =>
+                EF.Functions.Like(t.Name.ToLower(), pattern) ||
+                EF.Functions.Like(t.Album!.Name.ToLower(), pattern) ||
+                EF.Functions.Like(t.Album!.Artist!.Name.ToLower(), pattern)
+            )
+            .Take(count);
+    }
+
     public async Task<bool> UpsertAsync(string userId, string trackId)
     {
         var trackExists = await _context.Tracks.AnyAsync(t => t.Id == trackId);

@@ -21,6 +21,20 @@ public class PlaylistRepository
                 p.Title.ToUpper() == title.ToUpper());
     }
 
+    public IQueryable<Entities.Playlist> GetByQuery(string query, int count)
+    {
+        
+        var pattern = $"%{query}%";
+
+        return _context.Playlists
+            .AsNoTracking()
+            .Where(p =>
+                EF.Functions.Like(p.Name, pattern) ||
+                EF.Functions.Like(p.User!.UserName!, pattern)
+            )
+            .Take(count);
+    }
+
     public IQueryable<Entities.Playlist> GetByUser(string userId)
     {
         return _context.Playlists

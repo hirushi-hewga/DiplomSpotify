@@ -184,23 +184,40 @@ public class ArtistService : IArtistService
         }
     }
 
-    public async Task<ServiceResponse> GetFavouriteAsync(string userId)
+    public async Task<ServiceResponse> GetFavouriteAsync(string userId, int page, int pageSize)
     {
         try
         {
-            var favourite = await _repository
+            var favouriteQuery = _repository
                 .GetFavourite(userId)
-                .ProjectTo<ArtistDto>(_mapper.ConfigurationProvider)
-                .ToListAsync();
+                .ProjectTo<ArtistDto>(_mapper.ConfigurationProvider);
             
-            if (favourite.Count == 0)
+            var paged = await favouriteQuery.ToPageAsync(new PageQuery
+            {
+                Page = page,
+                PageSize = pageSize
+            });
+            
+            if (paged.Total == 0)
                 return new ServiceResponse("Artists not found");
 
-            return new ServiceResponse("Artists loaded", true, favourite);
+            return new ServiceResponse("Artists loaded", true, paged);
         }
         catch (Exception ex)
         {
             return new ServiceResponse($"GetFavourite exception: {ex.GetType().Name} - {ex.Message}");
         }
+    }
+
+    public async Task<ServiceResponse> GetByTrackAsync(string trackId)
+    {
+        var artist = await _repository.GetByTrackAsync(trackId);
+        
+        if (artist == null)
+            return new ServiceResponse("Artist not found");
+        
+        var dto = _mapper.Map<ArtistDto>(artist);
+        
+        return new ServiceResponse("Artist found", true, dto);
     }
 }

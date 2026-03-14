@@ -4,22 +4,24 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { getUser, logOut } from "../../store/slice/userSlice.ts";
+import { useHomeUi } from "components/ui/HomeUiContext.tsx";
 
 
-const Header = ({signInTextColor = "", sidebarOpenHandler = () => {}, isSidebarOpen = false}) => {
+const Header = ({signInTextColor = ""}) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const mainPath = pathname.split("/")[1]
   const user = useSelector(getUser);
+  const { searchQuery, sidebarOpen, toggleSidebar, setSearchQuery } = useHomeUi();
 
   const isAdmin = (role?: string | string[]) =>
     Array.isArray(role)
       ? role.includes("admin")
       : role === "admin";
 
-  const height = `${(mainPath==="home" || mainPath==="admin")?'39':'67'}px`;
+  const height = `${(mainPath==="home" || mainPath==="road" || mainPath==="relax" || mainPath==="admin")?'39':'67'}px`;
 
   const API_URL = "http://localhost:5014";
   const avatarPath = user?.image;
@@ -38,12 +40,12 @@ const Header = ({signInTextColor = "", sidebarOpenHandler = () => {}, isSidebarO
         height: height,
       }}>
       <div className="h-full flex items-center gap-[24px]">
-        <div className={clsx((mainPath !== "home") && "hidden", "w-[32px] h-[32px] flex items-center justify-center")}>
+        <div className={clsx((mainPath !== "home" && mainPath !== "road" && mainPath !== "relax") && "hidden", "w-[32px] h-[32px] flex items-center justify-center")}>
           <img
             src="/assets/icons/icon12.svg"
             alt="icon"
-            className={clsx(isSidebarOpen && "-rotate-90", "transition-transform duration-300 h-[24px] hover:cursor-pointer z-10")}
-            onClick={sidebarOpenHandler}
+            className={clsx(sidebarOpen && "-rotate-90", "transition-transform duration-300 h-[24px] hover:cursor-pointer z-10")}
+            onClick={toggleSidebar}
           />
         </div>
         <img
@@ -53,30 +55,32 @@ const Header = ({signInTextColor = "", sidebarOpenHandler = () => {}, isSidebarO
           className="h-full hover:cursor-pointer z-10"
         />
       </div>
-      <div className={clsx((mainPath!=="home" && mainPath!=="admin") && "hidden", "w-[332px] h-full flex items-center justify-between rounded-full backdrop-blur-[8.3px] border-[1px] border-white/[80%] bg-white/[10%]")}>
+      <div className={clsx((mainPath!=="home" && mainPath!=="admin") && "hidden", "w-[332px] h-full flex items-center gap-[24px] px-[24px] rounded-full backdrop-blur-[8.3px] border-[1px] border-white/[80%] bg-white/[10%] focus-within:bg-white/[1%]")}>
         <img
           src="/assets/icons/icon8.svg"
           alt="icon"
-          className="w-[20px] ml-[32px]"
+          className="h-[20px]"
         />
         <input
           type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search songs, artists, albums..."
-          className="flex-1 mx-[10px] bg-transparent font-normal font-inter  text-[16px] text-white placeholder-[#919090] border-none focus:ring-0"
+          className="flex-1 bg-transparent font-normal font-inter text-[16px] text-white placeholder-[#919090] border-none focus:ring-0  focus:placeholder-transparent p-0"
         />
       </div>
       <div className={clsx((pathname === "/vacancy") && "hidden", "gap-[24px] h-full flex items-center justify-between z-10")}>
-        <div className={clsx((mainPath==="home" || mainPath==="admin" || pathname === "/support") && "hidden", "w-[106px] h-[54px] flex items-center justify-center")}>
+        <div className={clsx((mainPath==="home" || mainPath==="road" || mainPath==="relax" || mainPath==="admin" || pathname === "/support") && "hidden", "w-[106px] h-[54px] flex items-center justify-center")}>
           <Link to="/support" className="text-white font-semibold font-poppins text-[20px]">
             Support
           </Link>
         </div>
-        <div className={clsx(((mainPath==="home" && pathname!=="/home/settings") || (mainPath==="admin") || (pathname === "/download")) && "hidden", "w-[173px] h-[54px] flex items-center justify-center")}>
+        <div className={clsx(((mainPath==="home" && pathname!=="/home/settings") || (mainPath==="road") || (mainPath==="relax") || (mainPath==="admin") || (pathname === "/download")) && "hidden", "w-[173px] h-[54px] flex items-center justify-center")}>
           <Link to="/download" className="text-white font-semibold font-poppins text-[20px]">
             Download app
           </Link>
         </div>
-        <div className={clsx(((mainPath==="home" && pathname!=="/home/settings") || (mainPath==="admin")) && "hidden", "w-[23px] h-[54px] flex items-center justify-center")}>
+        <div className={clsx(((mainPath==="home" && pathname!=="/home/settings") || (mainPath==="road") || (mainPath==="relax") || (mainPath==="admin")) && "hidden", "w-[23px] h-[54px] flex items-center justify-center")}>
           <div className="w-[3px] h-[34px] bg-white"/>
         </div>
         <div className={clsx(user && "hidden", "w-[132px] h-full")}>
@@ -97,7 +101,7 @@ const Header = ({signInTextColor = "", sidebarOpenHandler = () => {}, isSidebarO
         </div>
         <div className={clsx(!user && "hidden", "h-full relative flex items-center gap-[24px]")}>
           <div
-            className={`${(mainPath === "account" && pathname !== "/account") && "hidden"} ${isAdmin(user?.role) && "hover:cursor-pointer"} font-semibold font-poppins text-[${(mainPath==="home" || mainPath==="admin") ? "16" : "20"}px] text-white`}
+            className={`${(mainPath === "account" && pathname !== "/account") && "hidden"} ${isAdmin(user?.role) && "hover:cursor-pointer"} font-semibold font-poppins text-[${(mainPath==="home" || mainPath==="road" || mainPath==="relax" || mainPath==="admin") ? "16" : "20"}px] text-white`}
             onClick={() => {isAdmin(user?.role) && navigate("/admin")}}
           >
             {(mainPath === "account") ? "Profile" : user?.userName}
@@ -112,7 +116,7 @@ const Header = ({signInTextColor = "", sidebarOpenHandler = () => {}, isSidebarO
           <img
             src="/assets/icons/icon19.svg"
             alt="icon"
-            className={`${mainPath === "home" && "hidden"} h-[6.58px]`}
+            className={`${(mainPath === "home" || mainPath==="road" || mainPath==="relax") && "hidden"} h-[6.58px]`}
           />
           <div className={clsx(!userMenuOpen && "hidden", "flex items-center rounded-[20px] bg-[#383838]/[20%] border border-white/[80%] backdrop-blur-[8.3px] absolute right-0 top-[80px] z-10")}>
             <div className="my-[36px] ml-[22px] mr-[28px] gap-y-[16px] flex flex-col justify-between font-semibold font-inter text-[20px] text-white">

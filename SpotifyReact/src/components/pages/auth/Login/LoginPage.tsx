@@ -7,8 +7,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { jwtParser } from "utils/jwtParser.ts";
 import { setCredentials } from "../../../../store/slice/userSlice.ts";
-import { useAppDispatch } from "store";
-import { useLoginMutation } from "services/user";
 
 
 const LoginPage = () => {

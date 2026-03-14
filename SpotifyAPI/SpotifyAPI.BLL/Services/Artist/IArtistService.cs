@@ -10,5 +10,6 @@ public interface IArtistService
     Task<ServiceResponse> UpdateAsync(ArtistUpdateDto dto);
     Task<ServiceResponse> DeleteAsync(string id);
     Task<ServiceResponse> GetPageAsync(PageQuery q);
-    Task<ServiceResponse> GetFavouriteAsync(string userId);
+    Task<ServiceResponse> GetFavouriteAsync(string userId, int page, int pageSize);
+    Task<ServiceResponse> GetByTrackAsync(string trackId);
 }

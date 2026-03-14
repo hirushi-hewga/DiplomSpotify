@@ -5,6 +5,7 @@ using SpotifyAPI.BLL.Services.Artist;
 using SpotifyAPI.BLL.Services.Email;
 using SpotifyAPI.BLL.Services.Image;
 using SpotifyAPI.BLL.Services.Jwt;
+using SpotifyAPI.BLL.Services.Like;
 using SpotifyAPI.BLL.Services.Playlist;
 using SpotifyAPI.BLL.Services.Role;
 using SpotifyAPI.BLL.Services.Track;
@@ -26,6 +27,7 @@ namespace SpotifyAPI.Infrastructure
             services.AddScoped<IPlaylistService, PlaylistService>();
             services.AddScoped<ITrackService, TrackService>();
             services.AddScoped<IAlbumService, AlbumService>();
+            services.AddScoped<ILikeService, LikeService>();
         }
 
         public static void AddJobs(this IServiceCollection services, params (Type type, string cronExpression)[] jobs)

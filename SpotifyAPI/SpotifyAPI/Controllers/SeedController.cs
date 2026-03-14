@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SpotifyAPI.BLL;
 using SpotifyAPI.BLL.Services.Image;
@@ -11,11 +10,27 @@ namespace SpotifyAPI.Controllers;
 public class SeedController : ControllerBase
 {
     private readonly JamendoSeedService _seed;
-    public SeedController(JamendoSeedService seed) => _seed = seed;
+    private readonly GenreSeedService _genreSeed;
+
+    public SeedController(
+        JamendoSeedService seed,
+        GenreSeedService genreSeed)
+    {
+        _seed = seed;
+        _genreSeed = genreSeed;
+    }
 
     [HttpPost("jamendo")]
     public async Task<IActionResult> JamendoGuaranteed(CancellationToken ct)
-        => Ok(await _seed.SeedGuaranteedAsync(targetTracks: 3000, maxAlbumsPerArtist: 3, maxTracksPerAlbum: 20, ct: ct));
+        => Ok(await _seed.SeedGuaranteedAsync(
+            targetTracks: 3000,
+            maxAlbumsPerArtist: 3,
+            maxTracksPerAlbum: 20,
+            ct: ct));
+
+    [HttpPost("genres")]
+    public async Task<IActionResult> SeedGenres(CancellationToken ct)
+        => Ok(await _genreSeed.SeedGenresAsync(ct));
 
     [HttpGet("files-test")]
     public async Task<IActionResult> FilesTest([FromServices] IFileService files, CancellationToken ct)

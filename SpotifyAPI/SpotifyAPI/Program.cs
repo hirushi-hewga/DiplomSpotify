@@ -164,6 +164,7 @@ builder.Services.AddScoped(sp =>
         sp.GetRequiredService<IFileService>(),
         clientId: builder.Configuration["Jamendo:ClientId"]!
     ));
+builder.Services.AddScoped<GenreSeedService>();
 
 builder.Services.AddHttpClient();
 

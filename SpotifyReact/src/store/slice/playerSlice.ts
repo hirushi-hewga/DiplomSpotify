@@ -103,3 +103,29 @@ export const selectCurrentTrack = (s: any) => {
   const p = s.player as PlayerState;
   return p.currentIndex >= 0 ? p.queue[p.currentIndex] : null;
 };
+export const selectNextTrack = (s: any) => {
+  const p = s.player as PlayerState;
+
+  if (p.queue.length === 0) return null;
+
+  const nextIndex = (p.currentIndex + 1) % p.queue.length;
+
+  return p.queue[nextIndex];
+};
+export const selectNextQueue = (s: any) => {
+  const p = s.player as PlayerState;
+
+  if (p.currentIndex < 0 || p.queue.length === 0) return [];
+
+  const result: Track[] = [];
+
+  for (let i = 1; i <= Math.min(7, p.queue.length - 1); i++) {
+    result.push(p.queue[(p.currentIndex + i) % p.queue.length]);
+  }
+
+  return result;
+};
+export const selectIsPlaying = (s: any) => {
+  const p = s.player as PlayerState;
+  return p.isPlaying;
+};

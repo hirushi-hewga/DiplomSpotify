@@ -1,7 +1,6 @@
 import { Button } from "components/ui/Button.tsx";
 import { Input } from "components/ui/Input.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useResetPasswordMutation } from "services/user.ts";
 
 
 
@@ -12,7 +11,7 @@ const ResetPasswordPage2 = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [resetPassword, { isLoading, isSuccess, error }] = useResetPasswordMutation();
+  //const [resetPassword, { isLoading, isSuccess, error }] = useResetPasswordMutation();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -29,10 +28,6 @@ const ResetPasswordPage2 = () => {
     if (password !== confirmPassword) {
       alert("Паролі не збігаються");
       return;
-    }
-    if (token && email){
-      await resetPassword({ email, token, password });
-      navigate("/login");
     }
   };
 
@@ -68,7 +63,6 @@ const ResetPasswordPage2 = () => {
           <div className="w-full h-[52px]">
             <Button
               onClick={() => navigate("/reset-password/success")}
-              disabled={isLoading}
               type="submit"
               className="bg-[#F3792A] font-medium text-[20px]"
             >

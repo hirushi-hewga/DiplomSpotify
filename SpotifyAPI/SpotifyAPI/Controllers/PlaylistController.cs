@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,7 @@ public class PlaylistController : AppController
         [FromQuery] string userId,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10
-        )
+    )
         => CreateActionResult(await _service.GetPagedAsync(userId, page, pageSize));
     
     [HttpGet("{id}")]

@@ -18,4 +18,12 @@ public class AlbumRepository
             .AsNoTracking()
             .Where(a => a.AlbumLikes.Any(l => l.UserId == userId));
     }
+
+    public IQueryable<Entities.Album> GetRandom(int count)
+    {
+        return _context.Albums
+            .AsNoTracking()
+            .OrderBy(_ => Guid.NewGuid())
+            .Take(count);
+    }
 }

@@ -18,4 +18,18 @@ public class ArtistRepository
             .AsNoTracking()
             .Where(a => a.Followers.Any(f => f.UserId == userId));
     }
+
+    public async Task<Entities.Artist?> GetByTrackAsync(string trackId)
+    {
+        var track = await _context.Tracks
+            .AsNoTracking()
+            .Include(t => t.Album)
+            .ThenInclude(a => a.Artist)
+            .FirstOrDefaultAsync(t => t.Id == trackId);
+        
+        if (track == null)
+            return null;
+
+        return track.Album?.Artist;
+    }
 }
